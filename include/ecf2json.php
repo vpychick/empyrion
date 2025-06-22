@@ -39,7 +39,7 @@ class ecf2json
         $aInnerCounters=[];
 
         if(!empty($sLine)) {
-            /** первая срока описания объекта что-то содерижит, разберем это что-то,
+            /** первая срока описания объекта что-то содержит, разберем это что-то,
              * формат - пары свойство:значение, разделённые запятыми
              */
             $aPairs=explode(",",$sLine);
@@ -63,21 +63,29 @@ class ecf2json
             if(str_starts_with($sLine, "{")) {
                 $sLine=trim(substr($sLine,1));
                 list($sSection,$sData)=explode(" ",$sLine,2);
+                $sSection=trim($sSection);
+                $sData=trim($sData);
                 if(str_starts_with($sSection,"+")) $sSection=substr($sSection,1); /** если объект начинается с + убираем его */
-                $this->log->debug("Обнаружено подмножество $sSection");
-                if(is_integer($sData)) {
+                $this->log->debug("Обнаружено подмножество $sSection ($sData)");
+                if(is_numeric($sData)) {
                     /** индекс задан явно */
                     $nIndex=$sData;
                     $sData="";
+                    $this->log->trace("Индекc $nIndex задан явно");
                 } else {
                     /** индекс не задан явно, используем внутренние счетчик для данного вида записей */
                     if(empty($aInnerCounters[$sSection])) $aInnerCounters[$sSection]=0;
                     $nIndex=$aInnerCounters[$sSection]++;
+                    $this->log->trace("Индекc $nIndex вычислен для типа $sSection");
                 }
                 $aData[$sSection][$nIndex]=$this->ParseOneLevel($fp,$sData);
-            } else if(str_starts_with($sLine, "}")) return $aData;
+            } else if(str_starts_with($sLine, "}")) {
+                $this->log->trace("Обработка завершена: ".json_encode($aData,JSON_UNESCAPED_SLASHES));
+                return $aData;
+
+            }
             else {
-                if(preg_match_all("/((\w*)\s*:\s*((\"[a-z0-9 ,]*\")|(\w*)))/i",$sLine,$aMatches)) {
+                if(preg_match_all("/((\w*)\s*:\s*((\"[a-z0-9 ,.\-]*\")|([a-z0-9.\-]*)))/i",$sLine,$aMatches)) {
                     $sKey=$aMatches[2][0];
                     $sValue=$aMatches[3][0];
                     $this->log->trace("$sKey=$sValue");
@@ -90,6 +98,7 @@ class ecf2json
                             $this->log->trace("$sKey1=$sValue1");
                             $aData[$sKey][$sKey1]=$sValue1;
                         }
+                        $this->log->trace("$sKey обработка завершена");
                     } else {
                         $aData[$sKey]=$sValue;
                     }

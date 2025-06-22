@@ -2,8 +2,7 @@
 
 namespace empyrion;
 
-use InvalidArgumentException;
-use pychickLogger;
+use pychick\utils\pychickLogger;
 use SQLite3;
 use SQLite3Result;
 

@@ -12,11 +12,11 @@ spl_autoload_register(function ($class_name) {
     else include $class_name . '.php';
 });
 
-$log=new pychickLogger("logs/test_industry.log", pychickLoggerLevel::TRACE);
+$log=new pychickLogger("logs/test_industry.log", pychickLoggerLevel::TRACE, true, false);
 $log->info("Поехали");
 
 try {
-    $ecf=new ecf2json("data\\test.ecf",$log);
+    $ecf=new ecf2json("data\\ItemsConfig.ecf",$log);
     $log->trace(print_r($ecf->getArray(),1));
 } catch (Exception $e) {
     $log->error("Не удалось разобрать файл");
