@@ -32,9 +32,51 @@ class db extends SQLite3
 
     public function saveItem(item $item) : bool
     {
-        $sSQL="insert into items (name, volume, mass, price, bp_output, ws_mask) values (?, ?, ?, ?, ?, ?) on conflict (name) do update set volume=?, mass=?, price=?, bp_output=?, ws_mask=?;";
-        $aSQLp=[$item->sName, $item->nVolume, $item->nMass, $item->nPrice, $item->nOutputCount, $item->nWS,  $item->nVolume, $item->nMass, $item->nPrice, $item->nOutputCount, $item->nWS , $item->nVolume, $item->nMass, $item->nPrice, $item->nOutputCount, $item->nWS];
 
+        $sSQL_Insert="name";
+        $sSQL_Update="";
+        $sSQL_Values="?";
+        $aSQLp=[];
+
+        if(isset($item->nMass)) {
+            $sSQL_Insert.=", mass";
+            $sSQL_Update.=", mass=?";
+            $sSQL_Values.=", ?";
+            $aSQLp[]=$item->nMass;
+        }
+
+        if(isset($item->nVolume)) {
+            $sSQL_Insert.=", volume";
+            $sSQL_Update.=", volume=?";
+            $sSQL_Values.=", ?";
+            $aSQLp[]=$item->nVolume;
+        }
+
+        if(isset($item->nPrice)) {
+            $sSQL_Insert.=", price";
+            $sSQL_Update.=", price=?";
+            $sSQL_Values.=", ?";
+            $aSQLp[]=$item->nPrice;
+        }
+
+        if(isset($item->nOutputCount)) {
+            $sSQL_Insert.=", bp_output";
+            $sSQL_Update.=", bp_output=?";
+            $sSQL_Values.=", ?";
+            $aSQLp[]=$item->nOutputCount;
+        }
+
+        if(isset($item->nWS)) {
+            $sSQL_Insert.=", ws_mask";
+            $sSQL_Update.=", ws_mask=?";
+            $sSQL_Values.=", ?";
+            $aSQLp[]=$item->nWS;
+        }
+
+        $sSQL_Update=substr($sSQL_Update,1);
+
+        $sSQL="insert into items ($sSQL_Insert) values ($sSQL_Values) on conflict (name) do update set $sSQL_Update;";
+        $aSQLp=array_merge([$item->sName],$aSQLp,$aSQLp);
         $res=$this->getRowSet($sSQL,$aSQLp);
         if(!$res) return false; else return true;
     }

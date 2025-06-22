@@ -5,7 +5,6 @@ use pychick\utils\pychickLogger;
 use pychick\utils\pychickLoggerLevel;
 use empyrion\item;
 
-
 spl_autoload_register(function ($class_name) {
     $sClassNameShort = substr($class_name, strrpos($class_name,"\\"));
     if (str_starts_with($class_name, "pychick\utils")) include "../utils/" . $sClassNameShort . '.php';
@@ -31,9 +30,9 @@ if(!is_array($ecf->getArray()["Item"])) {
 }
 foreach ($ecf->getArray()["Item"] as $aItem) {
     $sName=$aItem["Name"];
-    if(is_array($aItem["Volume"])) $nVolume=$aItem["Volume"]["value"]; else $nVolume=$aItem["Volume"];
-    if(is_array($aItem["Mass"])) $nMass=$aItem["Mass"]["value"]; else $nMass    =$aItem["Mass"];
-    if(is_array($aItem["MarketPrice"])) $nPrice=$aItem["MarketPrice"]["value"]; else $nPrice=$aItem["MarketPrice"];
+    if(is_array($aItem["Volume"])) $nVolume=$aItem["Volume"]["value"]; else $nVolume=$aItem["Volume"]??0;
+    if(is_array($aItem["Mass"])) $nMass=$aItem["Mass"]["value"]; else $nMass=$aItem["Mass"]??0;
+    if(is_array($aItem["MarketPrice"])) $nPrice=$aItem["MarketPrice"]["value"]; else $nPrice=$aItem["MarketPrice"]??0;
     $item=new item($sName, $nVolume, $nPrice, $nMass);
     $db->saveItem($item);
     unset($item);
